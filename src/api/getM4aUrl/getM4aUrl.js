@@ -31,17 +31,6 @@ module.exports = {
 				sip.forEach((item) => {
 					return m4aUrl.push(item + purl);
 				});
-				// for (let i = 0; i < m4aUrl.length; i++) {
-				// 	request({
-				// 		method: 'GET',
-				// 		url: `${m4aUrl[i]}`
-				// 	}, (err, res) => {
-				// 		if (res.statusCode === 200) {
-				// 			M4aUrl = m4aUrl[i]
-				// 			callback(M4aUrl,send)
-				// 		}
-				// 	})
-				// }
 				callback(m4aUrl,send)
 			})
 		}

@@ -2,7 +2,7 @@ const experss = require('express');
 const app = experss();
 const { getMid } = require('./getMid/getMid');
 const { getM4aUrl } = require('./getM4aUrl/getM4aUrl');
-// const { getSong } = require('./getSong/getSong');
+const { getDayNew } = require('./getDayNew/getDayNew');
 
 app.all("*", function (req, res, next) { //解决跨域请求问题
 	res.header({
@@ -23,6 +23,6 @@ app.all("*", function (req, res, next) { //解决跨域请求问题
 
 app.get('/api/getMid/:name', getMid);
 app.get('/api/getM4aUrl/:mid',getM4aUrl);
-// app.get('/api/getSong/:M4aUrl', getSong);
+app.get('/api/getDayNew/new', getDayNew);
 
 app.listen(9527)

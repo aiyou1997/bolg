@@ -3,18 +3,21 @@
         <m-header msg="Aiyou'blog" />
         <router-view></router-view>
         <player />
+		<page-footer/>
     </div>
 </template>
 
 <script>
 import Mheader from "./components/m-header/m-header.vue";
 import player from "./components/player/player.vue";
+import pageFooter from "./components/pageFooter/pageFooter.vue";
 
 export default {
     name: "App",
     components: {
         "m-header": Mheader,
-        player
+		player,
+		'page-footer':pageFooter
     }
 };
 </script>
