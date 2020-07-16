@@ -52,7 +52,8 @@ export default {
         return {
             style: {
                 top: "346px",
-                right: "-1px"
+				right: "-1px",
+				transform:`translateY(${this.Y}px`
             },
             y: 0,
             //控制台信息
@@ -76,9 +77,10 @@ export default {
         keepPosition() {
             this.y = window.scrollY;
             this.style = {
-                top: 346 + this.y + "px",
-                right: "-1px"
-            };
+                top: '346px' ,
+				right: "-1px",
+				transform:`translateY(${this.y}px)`
+			};
         },
         getM4aUrl(M4aUrl, name, pmid, singer) {
             this.stop = false;
@@ -184,7 +186,8 @@ export default {
         // window.addEventListener("error", function(event) {
         //     console.log(event);
         //     alert("此歌曲没有版权 QAQ");
-        // });
+		// });
+		this.closeControl()
         this.$refs.audio.addEventListener("play", () => {
             this.songTime = this.$refs.audio.duration;
         });

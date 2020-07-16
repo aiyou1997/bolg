@@ -1,5 +1,5 @@
 <template>
-    <div class="cont">
+    <div class="dayNew">
         <div class="line"></div>
 
         <ul class="subject">
@@ -14,7 +14,7 @@
 <script>
 import axios from "axios";
 export default {
-    name: "cont",
+    name: "dayNew",
     data() {
         return {
             newList: []
@@ -29,7 +29,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.cont {
+.dayNew {
     display: block;
     margin: 0 auto;
     width: 80%;

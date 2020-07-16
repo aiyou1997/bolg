@@ -21,7 +21,7 @@ export default {
     name: "serach",
     data() {
         return {
-            text: "love you like a love song",
+            text: "",
             list: {},
 			M4aUrl: [],
 			result:{
@@ -88,28 +88,28 @@ export default {
 					this.result.Y=this.result.Y+100;
 					this.scroll.top=this.scroll.top+100;
 					let bigPCT=this.result.Y/this.result.hideY*(100-this.scroll.PCT);
-					this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
-					return this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`
+					this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`;
+					return this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
 				}else{
 					this.result.Y=this.result.hideY;
 					this.scroll.top=this.result.hideY;
 					let bigPCT=this.result.Y/this.result.hideY*(100-this.scroll.PCT);
-					this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
-					return this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`
+					this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`;
+					return this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
 				}
 			}else{
 				if(this.result.Y>100){
 					this.result.Y=this.result.Y-100;
 					this.scroll.top=this.scroll.top-100;
 					let bigPCT=this.result.Y/this.result.hideY*(100-this.scroll.PCT);
-					this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
-					return this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`
+					this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`;
+					return this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
 				}else{
 					this.result.Y=0;
 					this.scroll.top=0;
 					let bigPCT=this.result.Y/this.result.hideY*(100-this.scroll.PCT);
-					this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
-					return this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`
+					this.$refs.scroll.style.transform=`translateY(${this.scroll.top}px)`;
+					return this.$refs.scroll.style.background=`linear-gradient(to bottom,white ${bigPCT}%, #ccc ${bigPCT}%,#ccc ${bigPCT+this.scroll.PCT}%, white ${bigPCT+this.scroll.PCT}%)`;
 				}
 			}
 		},
