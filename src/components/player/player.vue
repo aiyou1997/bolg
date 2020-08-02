@@ -194,7 +194,10 @@ export default {
             } else {
                 return this.volumeZero = false;
             }
-        }
+		},
+		M4aUrl(){
+			return this.$refs.audio.load();
+		}
     },
     mounted() {
         this.$refs.audio.volume = 0.2;
