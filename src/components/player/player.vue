@@ -25,7 +25,10 @@
             <div class="searchIcon" @click="searchControl"></div>
         </div>
         <search v-show="searchOpen" @getM4aUrl="getM4aUrl" />
-        <audio :src="M4aUrl" ref="audio" autoplay loop></audio>
+        <!-- <audio :src="M4aUrl" ref="audio"></audio> -->
+		<audio ref="audio" autoplay loop controls>
+			<source v-for="(item,index) in M4aUrl" :key="index" :src="M4aUrl[index]">
+		</audio>
         <div
             class="seekBar"
             ref="seekBar"
@@ -290,6 +293,9 @@ export default {
             background-position: center;
         }
     }
+	audio{
+		display: none;
+	}
     .seekBar {
         position: absolute;
         width: 94%;
