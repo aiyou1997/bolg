@@ -19,7 +19,7 @@ export default {
 			content: '';
 			display: block;
 			margin: 20px auto;
-			width: 80%;
+			width: 70%;
 			height: 2px;
 			background: #ccc;
 		}

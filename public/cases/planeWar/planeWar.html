@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>planeWar</title>
+    <style>
+        body,
+        h1,
+        p {
+            margin: 0;
+        }
+
+        body {
+            /*关闭用户可以选择文字和元素的功能*/
+            user-select: none;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .game-area {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: red;
+			overflow: hidden;
+        }
+
+        .hardSele,
+        .game-map,
+        .game-end {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /*         
+            内容: 主界面 ,难度选择界面 
+        */
+        .hardSele {
+            z-index: 1;
+        }
+
+        .hardSele h1 {
+            font-size: 40px;
+            padding-top: 60px;
+            padding-bottom: 150px;
+            line-height: 60px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .hardSele button {
+            display: block;
+            width: 50vw;
+            height: 5vh;
+            margin: 0 auto 8vh;
+            border: none;
+        }
+
+        /*         
+            内容: 游戏地图
+            模块: 背景模块
+        */
+        .game-map {
+            /* display: none; */
+            /* z-index: 10; */
+            background-image: url("img/bg_1.jpg");
+        }
+
+        /*
+            内容: 游戏地图
+            模块: 游戏主要角色
+        */
+        .game-map .plane,
+        .game-map .biu,
+        .game-map .enemy,
+        .game-map .boom,
+        .game-map .boom2 {
+            position: absolute;
+        }
+
+        .game-map .plane {
+            z-index: 8;
+        }
+
+        .game-map .biu {
+            z-index: 10;
+        }
+
+        .game-map .boom2 {
+            z-index: 11;
+            animation: bling 2s 1;
+            animation-fill-mode: forwards;
+        }
+
+        .game-map .enemy {
+            z-index: 9;
+        }
+
+        .game-map .boom {
+            z-index: 7;
+            animation: fade .8s 1;
+            animation-fill-mode: forwards;
+        }
+
+        .game-map .score {
+            display: none;
+            /* 预设不显示 */
+            position: absolute;
+            top: 1em;
+            left: 1em;
+            color: #fff;
+            line-height: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 20;
+        }
+
+        @keyframes fade {
+
+            /*游戏内容动画之渐隐*/
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes bling {
+
+            /*游戏内容动画之闪烁*/
+            0% {
+                opacity: 1;
+            }
+
+            20% {
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            60% {
+                opacity: 0;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /*         
+            内容: 最终评价
+         */
+        .game-end {
+            display: none;
+            z-index: 30;
+        }
+
+        .game-end p {
+            width: 80vw;
+            line-height: 26px;
+            margin: 140px auto;
+            color: #fff;
+        }
+
+        .game-end p span {
+            display: block;
+            font-weight: bolder;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .game-end button {
+            display: block;
+            width: 50vw;
+            height: 5vh;
+            font-size: 3vh;
+            margin: 0 auto;
+            border: none;
+            border-radius: 1vw;
+        }
+
+        .game-end .finail-score span {
+            color: red;
+        }
+
+        .game-end .achievement span {
+            color: #ffa80c;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-area">
+        <!-- 
+            内容: 主界面 ,难度选择界面 
+        -->
+        <div class="hardSele">
+            <h1 class="game-v">打飞机 v1.0</h1>
+            <button>简单</button>
+            <button>中等</button>
+            <button>困难</button>
+            <button>地狱模式</button>
+        </div>
+
+        <!-- 
+            内容: 游戏地图
+        -->
+        <div class="game-map">
+            <div class="biuall">
+
+            </div>
+            <div class="score">0</div>
+        </div>
+
+        <!-- 
+            内容: 最终评价
+        -->
+        <div class="game-end">
+            <p class="finail-score">
+                您的最终得分是: <span class="">0</span>
+            </p>
+            <p class="achievement">
+                获得称号: <span> 抠脚侠 </span>
+            </p>
+            <button class="restart">重新开始</button>
+        </div>
+
+    </div>
+    <script>
+        /*
+          处理兼容性问题, 用  requestAnimationFrame来替代setTimeout, 保证帧数更平稳
+          要求浏览器在下次重绘之前调用指定的回调函数更新动画
+        */
+        window.requestAnimationFrame = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 1000 / 60) };
+        window.cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
+
+        /*
+            定义基本数据和变量
+        */
+        //全局变量
+        var oBox = document.querySelector(".game-area"),
+            oScore = document.querySelector(".score"),
+            oRe = document.querySelector(".game-end"),
+            ohardSele = document.querySelector(".hardSele"),
+            oMap = document.querySelector(".game-map"),
+            oBiuAll = document.querySelector(".biuall"),
+            allBiu = oBiuAll.children,
+            allReChild = oRe.children,
+            oRestart = document.querySelector(".restart"),
+            boxOffsetTop = oBox.offsetTop,// 无意义
+            boxOffsetLeft = oBox.offsetLeft,// 无意义
+            ohardSeleOpts = ohardSele.querySelectorAll("button");//获取选项按钮
+
+        let honor = ["你打游戏像蔡徐坤", "坠机侠", "飞机小能手", "飞机大师", "风一样的男人"];
+
+        /*****
+        *@param 设置对象的自定义属性
+        */
+        ohardSeleOpts.forEach(function (item, index) {
+            item.index = index;
+        })
+        ohardSele.addEventListener("touchstart", function (ev = window.event) {
+            let ele = ev.target;
+            if (ele.tagName === "BUTTON") {
+                startGame(ele.index, {
+                    x: ev.changedTouches[0].clientX,
+                    y: ev.changedTouches[0].clientY
+                })
+            }
+        })
+
+        //restart按钮
+        oRestart.addEventListener(
+            "touchstart", function (ev) {
+                cancelAnimationFrame(oMap.bgTimer);//停止背景滚动
+                oRe.style.display = "none";//关闭 结束界面
+                ohardSele.style.display = "block";// 显示难度选择界面
+                oScore.innerText = "0";//分数清零
+                oBiuAll.innerHTML = "";//内容清零
+            }
+        )
+        /*****
+        *@param 游戏开始模块
+        *@level 游戏难度等级  0~3
+        *@pos   选择难度时手指触摸位置, 根据此位置创建我军初始飞机位置  { x:number,y:number}
+        */
+        function startGame(level, pos) {
+            clearMap(); //执行 隐藏和清理
+            oMap.style.backgroundImage = `url('img/bg_${level + 1}.jpg')`;
+            oBox.score = 0;//得分清零
+            createAnimate(oMap, bgMove(oMap, "y", 1));//开启背景动画
+            enemy(level, plane(level, pos));//创建敌军和我军
+        }
+
+        /*****
+        *@param 关闭关卡选项界面 启动分数界面和主游戏界面
+        */
+        function clearMap() {
+            oScore.style.display = "block"; // 显示游戏实时分数
+            ohardSele.style.display = "none";//隐藏关卡选择框
+        }
+
+        /*****
+        *@param  背景移动动画
+        *@obj    实现动画的元素
+        *@axis   实现背景移动的轴 x or y
+        *@speed  背景移动速度
+        */
+        function bgMove(obj, axis, speed) {
+            return function () {
+                obj["bgPos" + axis] = obj["bgPos" + axis] || 0;
+                obj["bgPos" + axis] += speed;
+                obj.style["backgroundPosition" + axis] = `${obj["bgPos" + axis]}px`;
+            }
+
+        }
+
+        /*****
+        *@param 关闭关卡选项界面 启动分数界面和主游戏界面
+        *@fn    实现动画的函数
+        *@obj   实现动画的元素
+        */
+        function createAnimate(obj, fn) {
+            if (!obj.timer) {
+                obj.timer = fn;
+            }
+            requestAnimationFrame(fn);
+        }
+
+        //创建我军
+        function plane(level, pos) {
+            //创建我军图片
+            let oImg = new Image();//document.createElement("img");
+            oImg.src = "img/plane_0.png";
+            oImg.width = 70;
+            oImg.height = 70;
+            oImg.className = "plane";
+            let x = pos.x - oImg.width / 2;
+            let y = pos.y - oImg.height / 2;
+            setTrans(oImg, x, y)
+            // oImg.style.transform = `translateX(${pos.x - oImg.width / 2}px) translateY(${pos.y - oImg.height / 2}px)`;
+            //把触摸位置经一些加工设置为 飞机的初始位置
+            let leftMin, leftMax, topMin, topMax;
+            oMap.appendChild(oImg);
+            oImg.onload = function () {
+                leftMin = 0,
+                leftMax = oMap.clientWidth - oImg.width,
+                topMin = 0,
+                topMax = oMap.clientHeight - oImg.height;
+                setEvent(oMap,"touchmove",setPlanePos(oImg, leftMin, leftMax, topMin, topMax),"set")
+            }
+            //调用子弹函数
+            fire(oImg, level);
+            return oImg;
+        }
+
+        /*****
+        *设置飞机位置
+        *@param  {HTMLElement} obj  飞机元素
+        *@param  {number} lMin      飞机允许运动左侧最小位置值
+        *@param  {number} lMax      飞机允许运动左侧最大位置值
+        *@param  {number} tMin      飞机允许运动右侧最小位置值
+        *@param  {number} tMax      飞机允许运动右侧最小位置值
+        */
+        function setPlanePos(obj, lMin, lMax, tMin, tMax) {
+            return function (ev) {
+                var left = ev.changedTouches[0].clientX - obj.width / 2;
+                var top = ev.changedTouches[0].clientY - obj.height / 2;
+                left = Math.max(lMin, left);
+                left = Math.min(lMax, left);
+                top = Math.max(tMin, top);
+                top = Math.min(tMax, top);
+                setTrans(obj, left, top)
+            }
+        }
+
+        /*****
+        *监听或是解绑事件
+        *@param  {HTMLElement} obj   事件的载体
+        *@param  {string}      event 事件类型
+        *@param  {function}    fn    事件的相关函数
+        *@param  {string}      opt   监听还是解绑  set or remove
+        */
+        function setEvent(obj, event, fn, opt) {
+            switch (opt) {
+                case "set":
+                    obj.addEventListener(event, fn);
+                    break;
+                case "remove":
+                    obj.removeEventListener(event, fn);
+            }
+        }
+
+
+        /*****
+        *监听或是解绑事件
+        *@param  {HTMLElement} obj   事件的载体
+        *@param  {string}      event 事件类型
+        *@param  {function}    fn    事件的相关函数
+        *@param  {string}      opt   监听还是解绑  set or remove
+        */
+        function fire(obj, level) {
+            oBox.biuInterval = setInterval(function () {
+                if (oBox.score >= 500) {//当分数大于500时 增加子弹, 子弹位置挪到飞机的两侧
+                    createBiu(true, -1);
+                    createBiu(true, 1);
+                } else {
+                    createBiu();
+                }
+            }, [100, 200, 200, 15][level]);
+            //根据难度不同, 选择不一样子弹发射的间隔时间 普通难度快,中等和困难比较慢, 地狱模式增快
+
+            function createBiu(index, d) {
+                //创建子弹
+
+                var oBiu = new Image();
+                oBiu.src = "img/fire.png";
+                oBiu.width = 30;
+                oBiu.height = 30;
+                oBiu.className = "biu";
+
+                var left = setTrans(obj).translateX + obj.width / 2 - oBiu.width / 2;
+                var top = setTrans(obj).translateY - oBiu.height + 5;
+                //设置子弹的位置, 调整到飞机的正中上方
+
+                if (index) {//根据参数移动子弹的位置
+                    left += oBiu.width * d
+                }
+
+                setTrans(oBiu, left, top)
+                //oBiu.style.transform = `translateX(${left}px) translateX(${top}px)`
+                oBiuAll.appendChild(oBiu);
+
+                //子弹运动
+                function m() {
+                    if (oBiu.parentNode) {
+                        var top = setTrans(oBiu).translateY - 20;
+                        if (top < -oBiu.height) {
+                            oBiuAll.removeChild(oBiu);
+                        } else {
+                            setTrans(oBiu, undefined, top);
+                            requestAnimationFrame(m);
+                        }
+                    }
+                }
+                //将运动执行队列放后面，不然子弹会直接初始就在 top-50 的位置
+                setTimeout(function () {
+                    requestAnimationFrame(m);
+                }, 50);
+            }
+        }
+
+        //创建敌军
+        function enemy(level, oPlane) {// 根据选择的难度和生成的我军飞机生成敌军
+            var w = oMap.clientWidth,//获得 敌军的活动空间, 活动空间的尺寸以地图区域的尺寸为主
+                h = oMap.clientHeight;
+
+            var speed = [5, 6, 8, 8][level]; //敌军下落速度
+
+            var num = 1;
+            oBox.enemyIntetval = setInterval(function () {
+                //隔段时间生成一个敌军
+
+                //每30个小兵, 就生成一个大兵
+                var index = num % 30 ? 1 : 0;
+
+                //生成敌军
+                var oEnemy = new Image();
+                oEnemy.index = index;//根据索引值 确定兵种类型
+                oEnemy.HP = [20, 1][index];//设置血量
+
+                //设置飞机速度  变化的幅度在 0.7倍speed 到1.3 倍speed之间
+                oEnemy.speed = speed + (Math.random() * 0.6 - 0.3) * speed;
+
+                oEnemy.speed *= index ? 1 : 0.5;//根据 飞机的类型再次调整速度
+
+                //根据 飞机的类型再次设置飞机的模型图片
+                oEnemy.src = "img/enemy_" + ["big", "small"][index] + ".png";
+                oEnemy.className = "enemy";//设置新元素的类名, 以此匹配上在css里面预设的动画样式和其他css样式
+                oEnemy.width = [104, 54][index];//定义基本尺寸数据
+                oEnemy.height = [80, 40][index];//定义基本尺寸数据
+
+                //设置元素的基本偏移位置
+                setTrans(oEnemy, (Math.random() * w - oEnemy.width / 2), (-oEnemy.height))
+
+                // oEnemy.style.left = Math.random() * w - oEnemy.width / 2 + 'px';
+                // oEnemy.style.top = -oEnemy.height + 'px';
+
+                oMap.appendChild(oEnemy);//加入到游戏地图
+                num++;
+
+                //敌军运动
+                function m() {
+                    if (oEnemy.parentNode) {//当 敌军已经加入了战场
+                        var top = setTrans(oEnemy).translateY;
+                        top += oEnemy.speed;
+                        if (top >= h) {
+                            oBox.score--; //漏掉飞机减分
+                            oScore.innerText = oBox.score;
+                            oMap.removeChild(oEnemy);
+                        } else {
+                            setTrans(oEnemy, undefined, top)
+                            // oEnemy.style.top = top + 'px';
+                            //子弹碰撞检测
+                            for (var i = allBiu.length - 1; i >= 0; i--) {//遍历此时 游戏地图里面的所有元素
+                                var objBiu = allBiu[i];
+                                if (coll(oEnemy, objBiu)) {// 碰撞检测
+                                    oBiuAll.removeChild(objBiu);//移除子弹
+                                    oEnemy.HP--;//降低敌军血量
+                                    if (!oEnemy.HP) {//敌军血量降至0
+                                        oBox.score += oEnemy.index ? 2 : 20; //打掉飞机加分 小飞机1分 打飞机20分
+                                        oScore.innerText = oBox.score;
+                                        boom(setTrans(oEnemy).translateX, setTrans(oEnemy).translateY, oEnemy.width, oEnemy.height, index ? 0 : 2);//敌军爆炸图
+                                        oMap.removeChild(oEnemy);//移除敌军
+                                        return;
+                                    }
+                                }
+                            }
+                            //我军碰撞检测
+                            if (oPlane.parentNode && coll(oEnemy, oPlane)) {//我方飞机存在并且 敌军和我们发生了碰撞
+                                boom(setTrans(oEnemy).translateX, setTrans(oEnemy).translateY, oEnemy.width, oEnemy.height, index ? 0 : 2);//敌军爆炸图
+                                boom(setTrans(oPlane).translateX, setTrans(oPlane).translateY, oPlane.width, oPlane.height, 1);//我军爆炸图
+                                oMap.removeChild(oEnemy);//移除敌军
+                                oMap.removeChild(oPlane);//移除我军
+                                oEnemy = null;
+                                GameOver();
+                                return;
+                            }
+                            requestAnimationFrame(arguments.callee);
+                        }
+                    }
+                }
+
+                requestAnimationFrame(m);
+            }, [350, 150, 120, 40][level]);
+        }
+
+        //爆炸函数
+        function boom(l, t, w, h, i) { // 爆炸位置 爆炸尺寸 爆炸图片类型 
+            var oBoom = new Image();
+            oBoom.src = "img/" + ["boom_small", "plane_0", "boom_big"][i] + ".png";//设置爆炸效果的图片内容
+            oBoom.className = 'boom' + ["", "2", ""][i];//设置爆炸的效果类名,  此处记得在css里面先增加好样式
+            oBoom.width = w;//设置基本尺寸参数
+            oBoom.height = h;//设置基本尺寸参数
+            setTrans(oBoom, l, t);
+            oMap.appendChild(oBoom);
+            setTimeout(function () {
+                oBoom.parentNode && oMap.removeChild(oBoom);
+                oBoom = null;
+            }, [1200, 2500, 1200][i]);
+        }
+
+        //两个物体 碰撞检测
+        function coll(obj1, obj2) {
+            var T1 = setTrans(obj1).translateY,//obj1.offsetTop,
+                B1 = T1 + obj1.clientHeight,
+                L1 = setTrans(obj1).translateX,
+                R1 = L1 + obj1.clientWidth;
+
+            var T2 = setTrans(obj2).translateY,
+                B2 = T2 + obj2.clientHeight,
+                L2 = setTrans(obj2).translateX,
+                R2 = L2 + obj2.clientWidth;
+
+            return !(B1 < T2 || R1 < L2 || T1 > B2 || L1 > R2);
+        }
+
+        //游戏结束
+        function GameOver() {
+            // document.onmousemove = null; //清除移动事件
+            clearInterval(oBox.biuInterval);//不再产生新子弹
+            clearInterval(oBox.enemyIntetval);//不再产生新敌军
+            restart();
+        }
+        //结算+重新开始
+        function restart() {
+            oScore.style.display = "none";
+
+            var s = oBox.score;
+            var finalHonor = honor[Math.floor(s / 300)];//300分为一个分界线
+
+
+            oRe.style.display = "block";
+            allReChild[0].children[0].innerText = s;
+            allReChild[1].children[0].innerText = finalHonor;
+        }
+
+
+
+        //封装设置 transform偏移量的函数
+        function setTrans(obj, x, y) {
+            if (!obj.transform) {
+                obj.transform = {};
+            }
+            if (arguments.length === 1) {
+                return obj.transform;
+            } else {
+                let str = '';
+                if (x) {
+                    obj.transform.translateX = x;
+                }
+                if (y) {
+                    obj.transform.translateY = y;
+                }
+                for (let key in obj.transform) {
+                    str += `${key}(${obj.transform[key]}px)`
+                }
+                obj.style.transform = str;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

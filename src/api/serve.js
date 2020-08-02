@@ -22,7 +22,7 @@ app.all("*", function (req, res, next) { //解决跨域请求问题
 });
 
 app.get('/api/getMid/:name', getMid);
-app.get('/api/getM4aUrl/:mid',getM4aUrl);
+app.get('/api/getM4aUrl/:mid', getM4aUrl);
 app.get('/api/getDayNew/new', getDayNew);
 
 app.listen(9527)

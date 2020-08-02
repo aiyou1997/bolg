@@ -7,8 +7,8 @@
             <router-link tag="li" class="tab-item" to="production" exact-active-class="underline">
                 <span class="tab-link">个人作品</span>
             </router-link>
-            <router-link tag="li" class="tab-item" to="other" exact-active-class="underline">
-                <span class="tab-link">其他</span>
+            <router-link tag="li" class="tab-item" to="aboutMe" exact-active-class="underline">
+                <span class="tab-link">关于我</span>
             </router-link>
             <li>
                 <span>联系</span>

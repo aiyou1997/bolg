@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         search() {
-            axios.get(`http://localhost:9527/api/getMid/${this.text}`)
+            axios.get(`http://47.103.5.105:9527/api/getMid/${this.text}`)
                 .then(data => {
                     this.list = data;
                     this.$refs.scroll.style.height = 0;
@@ -68,7 +68,7 @@ export default {
         choosePurl(index) {
             axios
                 .get(
-                    `http://localhost:9527/api/getM4aUrl/${this.list.data[index].mid}`
+                    `http://47.103.5.105:9527/api/getM4aUrl/${this.list.data[index].mid}`
                 )
                 .then(data => {
                     this.M4aUrl = data.data;

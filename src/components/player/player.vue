@@ -8,7 +8,7 @@
             <div
                 class="volume"
                 ref="volume"
-                @click.self="volumeControl"
+                @mousedown.self="volumeControl()"
                 @mouseenter="volumeBarAppear($event)"
                 @mouseout="volumeBarAppear($event)"
             >
@@ -52,8 +52,8 @@ export default {
         return {
             style: {
                 top: "346px",
-				right: "-1px",
-				transform:`translateY(${this.Y}px`
+                right: "-1px",
+                transform: `translateY(${this.Y}px`
             },
             y: 0,
             //控制台信息
@@ -61,7 +61,8 @@ export default {
             offClose: true,
             stop: true,
             volumeZero: false,
-            searchOpen: false,
+			searchOpen: false,
+			bfMoveVolume:0.2,
             volume: 0.2,
             //歌曲信息
             M4aUrl: [],
@@ -77,10 +78,10 @@ export default {
         keepPosition() {
             this.y = window.scrollY;
             this.style = {
-                top: '346px' ,
-				right: "-1px",
-				transform:`translateY(${this.y}px)`
-			};
+                top: "346px",
+                right: "-1px",
+                transform: `translateY(${this.y}px)`
+            };
         },
         getM4aUrl(M4aUrl, name, pmid, singer) {
             this.stop = false;
@@ -112,11 +113,19 @@ export default {
             }
         },
         volumeControl() {
-            if (this.$refs.audio.volume === 0) {
-                this.$refs.audio.volume = this.volume;
-                this.volumeZero = false;
+            if (this.$refs.audio.volume <= 0) {
+				this.$refs.audio.volume = this.bfMoveVolume;
+				this.volume=this.bfMoveVolume;
+                this.$refs.volumeBar.style.background = `linear-gradient(to top,skyblue ${this
+                    .volume * 100}%,white ${this.volume * 100}%)`;
+                if (this.volume === 0) {
+                    this.volumeZero = true;
+                } else {
+                    this.volumeZero = false;
+				}
             } else {
                 this.$refs.audio.volume = 0;
+                this.$refs.volumeBar.style.background = `linear-gradient(to top,skyblue 0,white 0)`;
                 this.volumeZero = true;
             }
         },
@@ -134,12 +143,15 @@ export default {
                     break;
                 case "mousemove":
                     if (this.canMove) {
-                        this.volume = (120-event.offsetY) / 120;
+                        this.volume = (120 - event.offsetY) / 120;
                     }
                     break;
                 case "mouseup":
                     this.canMove = false;
-                    this.volume = (120-event.offsetY) / 120;
+					this.volume = (120 - event.offsetY) / 120;
+					if(this.volume!=0){
+						this.bfMoveVolume=this.volume
+					}
                     break;
             }
         },
@@ -171,13 +183,14 @@ export default {
     },
     watch: {
         volume() {
-			this.$refs.volumeBar.style.background = `linear-gradient(to top,skyblue ${this.volume*100}%,white ${this.volume*100}%)`;
-			this.$refs.audio.volume = this.volume;
+            this.$refs.audio.volume = this.volume;
+            this.$refs.volumeBar.style.background = `linear-gradient(to top,skyblue ${this
+                .volume * 100}%,white ${this.volume * 100}%)`;
             if (this.volume === 0) {
                 return this.volumeZero = true;
-            }else{
-				return this.volumeZero = false;
-			}
+            } else {
+                return this.volumeZero = false;
+            }
         }
     },
     mounted() {
@@ -186,8 +199,8 @@ export default {
         // window.addEventListener("error", function(event) {
         //     console.log(event);
         //     alert("此歌曲没有版权 QAQ");
-		// });
-		this.closeControl()
+        // });
+        this.closeControl();
         this.$refs.audio.addEventListener("play", () => {
             this.songTime = this.$refs.audio.duration;
         });
@@ -260,7 +273,7 @@ export default {
                 background: linear-gradient(to top, skyblue 20%, white 20%);
                 bottom: 15px;
                 right: -10px;
-				z-index: 100;
+                z-index: 100;
             }
             span {
                 position: absolute;
@@ -268,7 +281,7 @@ export default {
                 user-select: none;
                 transform: translateX(-3px) translateY(-5px);
                 color: black;
-				z-index: -1;
+                z-index: -1;
             }
         }
         .searchIcon {

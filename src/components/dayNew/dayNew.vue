@@ -5,7 +5,7 @@
         <ul class="subject">
             <h2>今日要闻</h2>
             <li v-for="(item,index) in newList" :key="index">
-                <a :href="item.url">{{item.title}}</a>
+                <a :href="item.url" target="_blank">{{item.title}}</a>
             </li>
         </ul>
     </div>
@@ -21,7 +21,7 @@ export default {
         };
     },
     mounted() {
-        axios.get("http://localhost:9527/api/getDayNew/new").then(data => {
+        axios.get("http://47.103.5.105:9527/api/getDayNew/new").then(data => {
             this.newList = JSON.parse(data.data.slice(6).slice(0, -2));
         });
     }
@@ -33,6 +33,7 @@ export default {
     display: block;
     margin: 0 auto;
     width: 80%;
+	min-height:600px;
     .line {
         display: inline-block;
         width: 100%;

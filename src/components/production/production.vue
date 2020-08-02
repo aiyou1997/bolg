@@ -1,7 +1,7 @@
 <template>
     <div class="production" ref="production">
-        <prc-list/>
-		<prc-cont/>
+        <prc-list @getIndex="getIndex" />
+		<prc-cont v-bind:index='index' />
     </div>
 </template>
 
@@ -11,6 +11,16 @@ import prcCont from './../prc-cont/prc-cont.vue';
 
 export default {
 	name:'production',
+	data(){
+		return {
+			index:0
+		}
+	},
+	methods:{
+		getIndex(index){
+			this.index=index;
+		}
+	},
 	components:{
 		'prc-list':prcList,
 		'prc-cont':prcCont

@@ -1,6 +1,6 @@
 <template>
 	<ul class="prc-list" :style="style">
-		<li v-for="(item,index) in list" :key="index">{{item}}</li>
+		<li v-for="(item,index) in list" :key="index" @click="change(index)">{{item.name}}</li>
 	</ul>
 </template>
 
@@ -10,7 +10,19 @@ export default {
 	data(){
 		return {
 			style:{},
-			list:[0,1,2,3,4,5,6,'7777777',8,9,]
+			list:[{
+				name:'轮播图',
+				src:'/cases/carousel/carousel.html'
+			},{
+				name:'canvas播放器',
+				src:'/cases/player/player.html'
+			},{
+				name:'canvas动画',
+				src:'/cases/canvasAnimation/canvasAnimation.html'
+			},{
+				name:'飞机大战',
+				src:'/cases/planeWar/link.html'
+			}]
 		}
 	},
 	methods:{
@@ -19,7 +31,10 @@ export default {
             this.style = {
 				transform:`translateY(${this.y}px)`
             };
-        },
+		},
+		change(index){
+			this.$emit('getIndex',index)
+		}
 	},
 	mounted(){
 		window.addEventListener("scroll", this.keepPosition);

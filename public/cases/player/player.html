@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>player</title>
+    <style>
+        /*清楚默认样式*/
+        body {
+            margin: 0;
+            font-size: 0;
+        }
+
+        button {
+            padding: 0;
+            border: 0;
+        }
+
+
+        .player {
+            width: 700px;
+            height: 400px;
+            margin: 20px auto 0;
+            border: 14px skyblue solid;
+            border-radius: 14px;
+            text-align: center;
+            background-color: black;
+        }
+
+        .player>div:first-child{
+            height: 360px;
+        }
+
+        .player>video {
+            display: none;
+        }
+
+        /*按钮组样式*/
+        .button-group {
+            height: 40px;
+            background-color: black;
+        }
+
+        .play {
+            float: left;
+            width: 30px;
+            height: 30px;
+            border-radius: 30px;
+            transform: translateX(6px) translateY(5px);
+            background: url(./src/images/play.jpg) no-repeat;
+            background-size: 100%;
+        }
+
+        .volume {
+            float: left;
+            width: 30px;
+            height: 30px;
+            border-radius: 30px;
+            transform: translateX(12px) translateY(5px);
+            background: url(./src/images/volume.jpg) no-repeat;
+            background-size: 100%;
+        }
+
+        .seek-bar {
+            float: left;
+            width: 500px;
+            height: 14px;
+            border-radius: 14px;
+            background-image: linear-gradient(to right, skyblue 0, white 0);
+            transform: translateX(36px) translateY(14px);
+        }
+
+        .button-group>input {
+            display: none;
+        }
+
+        .button-group>label {
+            float: right;
+            width: 30px;
+            height: 30px;
+            border-radius: 30px;
+            transform: translateX(-16px) translateY(5px);
+            background: url(./src/images/upDate.jpg) no-repeat;
+            background-size: 100%;
+        }
+
+        .full-screen {
+            float: right;
+            width: 30px;
+            height: 30px;
+            border-radius: 30px;
+            transform: translateX(-8px) translateY(5px);
+            background: url(./src/images/full-screen.jpg) no-repeat;
+            background-size: 100%;
+        }
+
+        /*音量大小*/
+        .volume>div {
+            display: none;
+            height: 104px;
+            transform: translateY(-102px);
+        }
+
+        .volume>div>div {
+            position: relative;
+            height: 101px;
+            width: 10px;
+            border-radius: 10px;
+            background-image: linear-gradient(to top, skyblue 10%, white 10%);
+            transform: translateX(10px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="player">
+        <div >
+            <canvas width="640" height="360"></canvas>
+        </div>
+        <div class="button-group">
+            <div class="play"></div>
+            <div class="volume">
+                <div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="seek-bar"></div>
+            <input type="file" id="open">
+            <div class="full-screen"></div>
+            <label for="open"></label>
+        </div>
+        <video src="" class="video" controls></video>
+    </div>
+    </div>
+    <script>
+        // 步骤
+        // 1.打开播放文件
+        // 2.播放
+        // 3.拖动进度条
+        // 4.调节音量
+
+        // canvas部分部分
+        let ElCanvas = document.querySelector("canvas");
+        let cavCon = ElCanvas.getContext("2d");
+
+
+        // 播放组件部分
+        window.onload = function () {
+            video.volume = 0.1;
+        }
+        let playNow = false;
+        let play = document.querySelector(".play");
+        play.addEventListener("click", playButton);
+        ElCanvas.parentNode.addEventListener("click", playButton);
+        function playButton() {
+            if (playNow) {
+                play.style.background = "url(./src/images/play.jpg) no-repeat";
+                play.style.backgroundSize = "100%";
+                video.pause();
+                clearInterval(beginPlay);
+                return playNow = false;
+            } else {
+                play.style.background = "url(./src/images/stop.jpg) no-repeat";
+                play.style.backgroundSize = "100%";
+                video.play();
+                switchOfvideo(x, y);
+                return playNow = true;
+            }
+        }
+
+
+        //音量调节组件部分
+        let volumeZero = false;
+        let volume = document.querySelector(".volume");
+        let volumeControl = document.querySelector(".volume>div>div");
+        volume.addEventListener("mouseover", disappear);
+        volume.addEventListener("mouseout", disappear);
+        function disappear(ev) {
+            if (ev === undefined) {
+                return volumeControl.parentNode.style.display = "none";
+            }
+            ev = ev || window.event
+            if (ev.type === "mouseout") {
+                return volumeControl.parentNode.style.display = "none";
+            } else {
+                return volumeControl.parentNode.style.display = "block";
+            }
+        }
+        volume.addEventListener("click", function (ev) {
+            ev = ev || window.event;
+            if (ev.target.className === "volume") {
+                volumeButton(volumeZero);
+            }
+        });
+        let beforeZero;
+        function volumeButton(theSwitch) {
+            if (theSwitch) {
+                volume.style.background = "url(./src/images/volume.jpg) no-repeat";
+                volume.style.backgroundSize = "100%";
+                if (!(beforeZero === undefined)) {
+                    video.volume = beforeZero;
+                    volumeControl.style.backgroundImage = `linear-gradient(to top, skyblue ${beforeZero * 100}%, white ${beforeZero * 100}%)`;
+                    beforeZero = undefined;
+                }
+                return volumeZero = false;
+            } else {
+                volume.style.background = "url(./src/images/volumeZero.jpg) no-repeat";
+                volume.style.backgroundSize = "100%";
+                volumeControl.style.backgroundImage = "linear-gradient(to top, skyblue 0, white 0)"
+                beforeZero = video.volume;
+                video.volume = 0;
+                return volumeZero = true;
+            }
+        }
+
+        let switchOfVolumeControl = false;
+        volumeControl.addEventListener("mousedown", volumeMove);
+        volumeControl.addEventListener("mousemove", volumeMove);
+        volumeControl.addEventListener("mouseup", volumeMove);
+        volumeControl.addEventListener("mouseout", volumeMove);
+        function volumeMove(ev) {
+            ev = ev || window.event;
+            if (switchOfVolumeControl) {
+                switch (ev.type) {
+                    case "mousemove":
+                        if (switchOfVolumeControl) {
+                            volumeControl.style.backgroundImage = `linear-gradient(to top,skyblue ${volume.offsetTop - ev.y + 4}%,white ${volume.offsetTop - ev.y + 4}%)`;
+                            video.volume = ((volume.offsetTop - ev.y + 4) / 100) > 1 ? 1 : (volume.offsetTop - ev.y + 4) / 100;
+                        };
+                        if (volume.offsetTop - ev.y + 4 === 0) {
+                            volumeButton(volumeZero = false);
+                        } else {
+                            volumeButton(volumeZero = true);
+                        }
+                        break;
+                    case "mouseup":
+                        switchOfVolumeControl = false;
+                        break;
+                    case "mouseout":
+                        switchOfVolumeControl = false;
+                        break;
+                }
+            } else {
+                switch (ev.type) {
+                    case "mousedown":
+                        ev.preventDefault();
+                        switchOfVolumeControl = true;
+                        volumeControl.style.backgroundImage = `linear-gradient(to top,skyblue ${volume.offsetTop - ev.y + 4}%,white ${volume.offsetTop - ev.y + 4}%)`;
+                        video.volume = (volume.offsetTop - ev.y + 4) / 100;
+                        if (volume.offsetTop - ev.y + 4 === 0) {
+                            volumeButton(volumeZero = false);
+                        } else {
+                            volumeButton(volumeZero = true);
+                        }
+                        break;
+                }
+            };
+        };
+
+        window.addEventListener("mousewheel", scrollMove)
+        function scrollMove(ev) {
+            ev = ev || window.event;
+            switch (ev.target.localName) {
+                case "canvas":
+                    if (ev.wheelDeltaY > 0) {
+                        video.volume += 0.03;
+                        volumeControl.style.backgroundImage = `linear-gradient(to top,skyblue ${video.volume * 100}%,white ${video.volume * 100}%)`;
+                        volumeControl.parentNode.style.display = "block";
+                        return setTimeout(disappear, 500);
+                    } else {
+                        video.volume -= 0.03;
+                        volumeControl.style.backgroundImage = `linear-gradient(to top,skyblue ${video.volume * 100}%,white ${video.volume * 100}%)`;
+                        volumeControl.parentNode.style.display = "block";
+                        return setTimeout(disappear, 500);
+                    }
+                    break;
+            }
+        }
+
+        //进度条组件部分
+        let seekBar = document.querySelector(".seek-bar");
+        let switchOfSeekBar = false;
+        seekBar.addEventListener("mousedown", seekBarMove);
+        window.addEventListener("mousemove", seekBarMove);
+        window.addEventListener("mouseup", seekBarMove);
+        function seekBarMove(ev) {
+            ev = ev || window.event;
+            if (switchOfSeekBar) {
+                switch (ev.type) {
+                    case "mousemove":
+                        if (switchOfSeekBar) {
+                            seekBar.style.backgroundImage = `linear-gradient(to right,skyblue ${(ev.x - seekBar.offsetLeft - 36) / 5}%,white ${(ev.x - seekBar.offsetLeft - 36) / 5}%)`;
+                        };
+                        video.currentTime = ((ev.x - seekBar.offsetLeft - 36) / 500) * videotime;
+                        break;
+                    case "mouseup":
+                        switchOfSeekBar = false;
+                        break;
+                }
+            } else {
+                switch (ev.type) {
+                    case "mousedown":
+                        ev.preventDefault();
+                        switchOfSeekBar = true;
+                        seekBar.style.backgroundImage = `linear-gradient(to right,skyblue ${ev.offsetX / 5}%,white ${ev.offsetX / 5}%)`;
+                        video.currentTime = ((ev.x - seekBar.offsetLeft - 36) / 500) * videotime;
+                        playNow = false;
+                        playButton();
+                        break;
+                }
+            };
+        };
+
+
+        //上传视频组件部分
+        let upDate = document.querySelector("#open");
+        let video = document.querySelector(".video");
+        let videoArr = [];
+        let urlArr = [];
+        upDate.onchange = function () {
+            videoArr.unshift(this.files[0]);
+            urlArr.unshift(window.URL.createObjectURL(this.files[0]));
+            video.setAttribute("src", urlArr[0]);
+            seekBar.style.backgroundImage = "linear-gradient(to right,skyblue 0,white 0)";
+            if (playNow) {
+                playButton();
+            };
+            setTimeout(beginUpDate, 750);
+        };
+        let videotime, videoWidth, videoHeight, x, y, $x, $y;
+        function beginUpDate() {
+            videotime = video.duration;
+            videoWidth = video.videoWidth;
+            videoHeight = video.videoHeight;
+            $x = videoWidth / 640;
+            $y = videoHeight / 360;
+            if (videoHeight / $x <= 360) {
+                x = videoWidth / $x;
+                y = videoHeight / $x;
+            } else {
+                x = videoWidth / $y;
+                y = videoHeight / $y;
+            }
+            ElCanvas.width = `${x}`
+            ElCanvas.height = `${y}`
+            return cavCon.drawImage(video, 0, 0, x, y);
+        };
+
+
+        // 克隆视频部分
+        let beginPlay;
+        ElCanvas.style.backgroundColor = "black";
+        function switchOfvideo() {
+            beginPlay = setInterval(function () {
+                cavCon.drawImage(video, 0, 0, x, y);
+                return seekBar.style.backgroundImage = `linear-gradient(to right,skyblue ${video.currentTime / videotime * 100}%,white ${video.currentTime / videotime * 100}%)`;
+            }, 1000 / 60);
+        }
+
+
+        // 全屏组件部分
+        let fullScreen = document.querySelector(".full-screen");
+        let isFullScreen = false;
+        fullScreen.onclick = full;
+        ElCanvas.parentNode.ondblclick = outFull;
+        function full(){
+            return ElCanvas.webkitRequestFullScreen();
+        }
+        function outFull(){
+            if(!isFullScreen){
+                return ElCanvas.webkitRequestFullScreen();
+            }else{
+                return document.exitFullscreen();
+            }
+        }
+        document.addEventListener("webkitfullscreenchange", function () {
+            if (isFullScreen) {
+                isFullScreen = !isFullScreen;
+                $x = videoWidth / 640;
+                $y = videoHeight / 360;
+                if (videoHeight / $x < 360) {
+                    x = Math.max(videoWidth / $x,640);
+                    y = Math.max(videoHeight / $x,360);
+                } else {
+                    x = Math.max(videoWidth / $y,640);
+                    y = Math.max(videoHeight / $y,360);
+                }
+                return (ElCanvas.width = `${x}`, ElCanvas.height = `${y}`)
+            } else {
+                isFullScreen = !isFullScreen;
+                $x = videoWidth / innerWidth;
+                $y = videoHeight / innerHeight;
+                if (videoHeight / $x < innerHeight) {
+                    x = videoWidth / $x;
+                    y = videoHeight / $x;
+                } else {
+                    x = videoWidth / $y;
+                    y = videoHeight / $y;
+                }
+                return (ElCanvas.width = `${x}`, ElCanvas.height = `${y}`)
+            }
+        })
+
+
+    </script>
+</body>
+
+</html>
